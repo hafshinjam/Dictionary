@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Dictionary</string>
+    <string name="en_to_fa">En To Fa</string>
+    <string name="fa_to_en">Fa To En</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="fa">Fa</string>
+    <string name="en">En</string>
+    <string name="word_in_persian">Word In Persian</string>
+    <string name="word_in_english">Word In English</string>
+    <string name="look_up">Look Up</string>
+    <string name="english">English</string>
+    <string name="persian">Persian</string>
+</resources>
