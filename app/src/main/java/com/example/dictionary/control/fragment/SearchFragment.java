@@ -1,114 +1,103 @@
 package com.example.dictionary.control.fragment;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.dictionary.R;
-import com.example.dictionary.control.activity.SearchActivity;
 import com.example.dictionary.model.DictionaryWord;
 import com.example.dictionary.repository.DictionaryDBRepository;
 import com.example.dictionary.repository.IRepository;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
-import static com.example.dictionary.control.fragment.AddWordDialogFragment.EXTRA_ADD_WORD;
-
-public class WordListFragment extends Fragment {
-    private final String DIALOG_ADD_WORD = "DialogCreateWord";
-    private IRepository<DictionaryWord> mWordRepository;
-    private List<DictionaryWord> mWordList;
-    private WordAdapter mAdapter;
-
+public class SearchFragment extends Fragment {
+    private EditText mPersianWord;
+    private EditText mEnglishWord;
+    private Button mSearchButton;
+    private CheckBox mLangCheck;
     private RecyclerView mRecyclerView;
-    private FloatingActionButton mAddButton;
-    private FloatingActionButton mSearchButton;
-    private int ADD_WORD_REQUEST_CODE = 2;
 
-    public WordListFragment() {
+    private List<DictionaryWord> mSearchWordList;
+    private IRepository<DictionaryWord> mWordRepository;
+    private WordAdapter mWordAdapter;
+    private boolean searchLangPersian;
+
+
+    public SearchFragment() {
         // Required empty public constructor
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK && data != null)
-            if (requestCode == ADD_WORD_REQUEST_CODE && data.getExtras() != null) {
-                DictionaryWord word = (DictionaryWord) data.getExtras().getSerializable(EXTRA_ADD_WORD);
-                mWordRepository.insert(word);
-                mWordList.add(word);
-                mAdapter.notifyDataSetChanged();
-            }
-    }
 
-    public static WordListFragment newInstance() {
-        return new WordListFragment();
+    public static SearchFragment newInstance() {
+        return new SearchFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getActivity() != null) {
-            mWordRepository = DictionaryDBRepository.getInstance(getActivity());
-            mWordList = mWordRepository.getList();
+        if (getArguments() != null) {
         }
+        if (getActivity() != null)
+            mWordRepository = DictionaryDBRepository.getInstance(getActivity());
+        mSearchWordList = mWordRepository.getList();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_word_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_search, container, false);
         findViews(view);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         updateUI();
         setListeners();
         return view;
     }
 
-    private void updateUI() {
-        if (mAdapter == null) {
-            mAdapter = new WordAdapter(mWordList);
-            mRecyclerView.setAdapter(mAdapter);
-        }
-
+    private void findViews(View view) {
+        mEnglishWord = view.findViewById(R.id.search_word_en);
+        mLangCheck = view.findViewById(R.id.check_search);
+        mPersianWord = view.findViewById(R.id.search_word_fa);
+        mSearchButton = view.findViewById(R.id.SearchFragment_search_words_button);
+        mRecyclerView = view.findViewById(R.id.search_word_list);
     }
 
-    private void findViews(View view) {
-        mRecyclerView = view.findViewById(R.id.word_list);
-        mAddButton = view.findViewById(R.id.add_word_button);
-        mSearchButton = view.findViewById(R.id.search_word_button);
+    private void updateUI() {
+        if (mWordAdapter == null)
+            mWordAdapter = new WordAdapter(mSearchWordList);
+        mRecyclerView.setAdapter(mWordAdapter);
     }
 
     private void setListeners() {
-        mAddButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AddWordDialogFragment fragment = AddWordDialogFragment.newInstance();
-
-                fragment.setTargetFragment(WordListFragment.this, ADD_WORD_REQUEST_CODE);
-                if (getFragmentManager() != null)
-                    fragment.show(getFragmentManager(), DIALOG_ADD_WORD);
-            }
-        });
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = SearchActivity.newIntent(getActivity());
-                startActivity(intent);
+                mSearchWordList.clear();
+                List<DictionaryWord> allWords = mWordRepository.getList();
+                if (mLangCheck.isChecked()) {
+                    if (!mPersianWord.getText().toString().equals(""))
+                        for (int i = 0; i < allWords.size(); i++) {
+                            if (allWords.get(i).getTranslationInPersian().
+                                    contains(mPersianWord.getText().toString()))
+                                mSearchWordList.add(allWords.get(i));
+                        }
+                } else if (!mEnglishWord.getText().toString().equals(""))
+                    for (int i = 0; i < allWords.size(); i++) {
+                        if (allWords.get(i).getTranslationInEnglish().
+                                contains(mEnglishWord.getText().toString()))
+                            mSearchWordList.add(allWords.get(i));
+                    }
+                mWordAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -147,15 +136,15 @@ public class WordListFragment extends Fragment {
 
     private class WordAdapter extends RecyclerView.Adapter<wordHolder> {
         public List<DictionaryWord> getWords() {
-            return mWordList;
+            return mSearchWordList;
         }
 
         public void setWords(List<DictionaryWord> wordList) {
-            mWordList = wordList;
+            mSearchWordList = wordList;
         }
 
         public WordAdapter(List<DictionaryWord> wordList) {
-            mWordList = wordList;
+            mSearchWordList = wordList;
         }
 
         @NonNull
@@ -169,13 +158,13 @@ public class WordListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull wordHolder holder, int position) {
-            DictionaryWord word = mWordList.get(position);
+            DictionaryWord word = mSearchWordList.get(position);
             holder.bindWord(word);
         }
 
         @Override
         public int getItemCount() {
-            return mWordList.size();
+            return mSearchWordList.size();
         }
     }
 }

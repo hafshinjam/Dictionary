@@ -34,15 +34,7 @@ public class DictionaryDBRepository implements IRepository<DictionaryWord> {
 
     public DictionaryDBRepository() {
         DictionaryBaseHelper dictionaryBaseHelper = new DictionaryBaseHelper(mContext);
-
             mDatabase = dictionaryBaseHelper.getWritableDatabase();
-            DictionaryWord[] words = new DictionaryWord[3];
-            words[0] = new DictionaryWord(UUID.randomUUID().toString(), "سلام", "Hello");
-            words[1] = new DictionaryWord(UUID.randomUUID().toString(), "دنیا", "World");
-            words[2] = new DictionaryWord(UUID.randomUUID().toString(), "دوباره", "Again");
-            for (int i = 0; i < words.length; i++) {
-                mDatabase.insert(NAME, null, getWordContentValues(words[i]));
-            }
     }
 
     @Override

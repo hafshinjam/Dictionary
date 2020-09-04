@@ -11,4 +11,10 @@
     <string name="look_up">Look Up</string>
     <string name="english">English</string>
     <string name="persian">Persian</string>
+    <string name="new_word">New Word</string>
+    <string name="save">Save</string>
+    <string name="share">share</string>
+    <string name="search_word_EN">Search Word English</string>
+    <string name="search_word_FA">کلمه فارسی برای جستجو</string>
+    <string name="persian_search">جستجو</string>
 </resources>

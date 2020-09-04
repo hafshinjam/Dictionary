@@ -1,8 +1,9 @@
 package com.example.dictionary.model;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class DictionaryWord {
+public class DictionaryWord implements Serializable {
     private UUID wordID;
     private String translationInPersian;
     private String translationInEnglish;
