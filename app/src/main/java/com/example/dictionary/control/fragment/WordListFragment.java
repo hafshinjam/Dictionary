@@ -3,18 +3,19 @@ package com.example.dictionary.control.fragment;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ShareCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dictionary.R;
 import com.example.dictionary.control.activity.SearchActivity;
@@ -29,6 +30,7 @@ import static com.example.dictionary.control.fragment.AddWordDialogFragment.EXTR
 
 public class WordListFragment extends Fragment {
     private final String DIALOG_ADD_WORD = "DialogCreateWord";
+    private final String EDIT_DELETE_WORD_FRAGMENT = "EditDeleteWordFragment";
     private IRepository<DictionaryWord> mWordRepository;
     private List<DictionaryWord> mWordList;
     private WordAdapter mAdapter;
@@ -79,12 +81,29 @@ public class WordListFragment extends Fragment {
         return view;
     }
 
+    private void updateSub() {
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        String subtitle = "Number Of Words: " + mWordRepository.getList().size();
+        if (activity != null && activity.getSupportActionBar() != null)
+            activity.getSupportActionBar().setSubtitle(subtitle);
+    }
+
     private void updateUI() {
+        mWordList = mWordRepository.getList();
         if (mAdapter == null) {
             mAdapter = new WordAdapter(mWordList);
             mRecyclerView.setAdapter(mAdapter);
+        } else {
+            mAdapter.setWords(mWordList);
+            mAdapter.notifyDataSetChanged();
         }
+        updateSub();
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateUI();
     }
 
     private void findViews(View view) {
@@ -127,13 +146,23 @@ public class WordListFragment extends Fragment {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                    EditDeleteWordFragment fragment = EditDeleteWordFragment.newInstance(mWord);
+                    fragment.setTargetFragment(WordListFragment.this, 4);
+                    if (getFragmentManager() != null) {
+                        fragment.show(getFragmentManager(), EDIT_DELETE_WORD_FRAGMENT);
+                    }
                 }
             });
             mShareButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                    Intent sendIntent = ShareCompat.IntentBuilder.from(getActivity()).
+                            setType("text/plain").
+                            setSubject(getString(R.string.share_word)).
+                            setText(mWord.getWordToShareString()).getIntent();
+                    Intent shareIntent = Intent.createChooser(sendIntent, null);
+                    if (sendIntent.resolveActivity(getActivity().getPackageManager()) != null)
+                        startActivity(shareIntent);
                 }
             });
         }

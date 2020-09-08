@@ -1,10 +1,6 @@
 package com.example.dictionary.control.fragment;
 
 import android.os.Bundle;
-
-import androidx.appcompat.widget.SwitchCompat;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +8,10 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.fragment.app.Fragment;
 
 import com.example.dictionary.R;
 import com.example.dictionary.model.DictionaryWord;
@@ -62,8 +62,21 @@ public class TranslateFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_translate, container, false);
         mDictionaryRepository = DictionaryDBRepository.getInstance(getActivity());
         findViews(view);
+        updateSub();
         setClickListeners();
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateSub();
+    }
+
+    private void updateSub() {
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        String subtitle = "Number Of Words: " + mDictionaryRepository.getList().size();
+        activity.getSupportActionBar().setSubtitle(subtitle);
     }
 
     private void setClickListeners() {

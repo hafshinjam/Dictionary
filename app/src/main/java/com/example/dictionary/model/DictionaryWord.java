@@ -9,7 +9,7 @@ public class DictionaryWord implements Serializable {
     private String translationInEnglish;
 
     public DictionaryWord(String translationInPersian, String translationInEnglish) {
-        wordID =UUID.randomUUID();
+        wordID = UUID.randomUUID();
         this.translationInPersian = translationInPersian;
         this.translationInEnglish = translationInEnglish;
     }
@@ -18,8 +18,12 @@ public class DictionaryWord implements Serializable {
         return wordID;
     }
 
+    public String getWordToShareString() {
+        return "The Word: " + translationInEnglish + " means " + translationInPersian;
+    }
+
     public DictionaryWord(String wordID, String translationInPersian, String translationInEnglish) {
-        this.wordID =UUID.fromString(wordID);
+        this.wordID = UUID.fromString(wordID);
         this.translationInPersian = translationInPersian;
         this.translationInEnglish = translationInEnglish;
     }

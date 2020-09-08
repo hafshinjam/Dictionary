@@ -11,7 +11,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dictionary.R;
@@ -31,7 +33,6 @@ public class SearchFragment extends Fragment {
     private List<DictionaryWord> mSearchWordList;
     private IRepository<DictionaryWord> mWordRepository;
     private WordAdapter mWordAdapter;
-    private boolean searchLangPersian;
 
 
     public SearchFragment() {
@@ -59,9 +60,23 @@ public class SearchFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_search, container, false);
         findViews(view);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         updateUI();
         setListeners();
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateSub();
+    }
+
+    private void updateSub() {
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        String subtitle = "Number Of Words: " + mWordRepository.getList().size();
+        if (activity != null && activity.getSupportActionBar() != null)
+            activity.getSupportActionBar().setSubtitle(subtitle);
     }
 
     private void findViews(View view) {
@@ -73,9 +88,15 @@ public class SearchFragment extends Fragment {
     }
 
     private void updateUI() {
-        if (mWordAdapter == null)
+
+        if (mWordAdapter == null) {
             mWordAdapter = new WordAdapter(mSearchWordList);
-        mRecyclerView.setAdapter(mWordAdapter);
+            mRecyclerView.setAdapter(mWordAdapter);
+        } else {
+            mWordAdapter.setWords(mSearchWordList);
+            mWordAdapter.notifyDataSetChanged();
+        }
+        updateSub();
     }
 
     private void setListeners() {
@@ -87,14 +108,14 @@ public class SearchFragment extends Fragment {
                 if (mLangCheck.isChecked()) {
                     if (!mPersianWord.getText().toString().equals(""))
                         for (int i = 0; i < allWords.size(); i++) {
-                            if (allWords.get(i).getTranslationInPersian().
-                                    contains(mPersianWord.getText().toString()))
+                            if (allWords.get(i).getTranslationInPersian().toLowerCase().
+                                    contains(mPersianWord.getText().toString().toLowerCase()))
                                 mSearchWordList.add(allWords.get(i));
                         }
                 } else if (!mEnglishWord.getText().toString().equals(""))
                     for (int i = 0; i < allWords.size(); i++) {
-                        if (allWords.get(i).getTranslationInEnglish().
-                                contains(mEnglishWord.getText().toString()))
+                        if (allWords.get(i).getTranslationInEnglish().toLowerCase().
+                                contains(mEnglishWord.getText().toString().toLowerCase()))
                             mSearchWordList.add(allWords.get(i));
                     }
                 mWordAdapter.notifyDataSetChanged();

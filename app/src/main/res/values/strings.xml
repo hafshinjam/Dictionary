@@ -17,4 +17,7 @@
     <string name="search_word_EN">Search Word English</string>
     <string name="search_word_FA">کلمه فارسی برای جستجو</string>
     <string name="persian_search">جستجو</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="delete_word">Delete Word</string>
+    <string name="share_word">Share Word</string>
 </resources>
